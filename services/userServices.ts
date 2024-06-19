@@ -6,4 +6,5 @@ export interface userServices {
     registerUser(user:Partial<User>):Promise<User>,
     updateUserById(id:string, update:Partial<User>):Promise<User | null>,
     deleteUserById(id:string):Promise<User | null>
+    login(email:string, password:string):Promise<{ token: string; user: User }>
 }

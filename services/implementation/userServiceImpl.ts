@@ -1,7 +1,8 @@
 import userRepository from "../../repositories/userRepository";
 import { User } from "../../model/USER_MODEL";
 import { userServices } from "../userServices";
-import { hashPassword } from "../../config/bcrypt";
+import { comparedPassword, hashPassword } from "../../config/bcrypt";
+import generateToken from "../../util/generateToken";
 
 
 
@@ -24,6 +25,24 @@ class userServicesImpl implements userServices {
         user.password = await hashPassword(user.password!);
         return userRepository.register(user);
     };
+
+     async login(email: string, password: string): Promise<{ token: string, user: User }> {
+        const user = await userRepository.findByEmail(email);
+        if (!user) {
+            throw new Error('Invalid email or password');
+        }
+
+        const isPasswordValid = await comparedPassword(password, user.password);
+        if (!isPasswordValid) {
+            throw new Error('Invalid email or password');
+        }
+
+        const token = await generateToken(user.id)
+
+        const { password: _, ...userWithoutPassword } = user.toObject();
+
+        return {token, user:userWithoutPassword};
+    }
 
     async updateUserById(id: string, update: Partial<User>): Promise<User| null> {
         return userRepository.updateById(id, update)
