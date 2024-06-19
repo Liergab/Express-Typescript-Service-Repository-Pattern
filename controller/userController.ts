@@ -61,6 +61,27 @@ export const registerUser = async (req:Request, res:Response, next:NextFunction)
     }
 }
 
+export const login = async(req:AuthenticatedRequest, res:Response, next:NextFunction)=> {
+    try {
+        const{email, password} = req.body
+
+        if(!email || !password){
+            res.status(400)
+            throw new Error('All fields required!')
+        }
+
+        const {token, user} = await userServiceImpl.login(email,password)
+        res.status(200).json({token, message:'Login Successfully!', data:user})
+
+    } catch (error:any) {
+
+        if(error.message === 'Invalid email or password'){
+            res.status(401)
+        }
+        next(error)
+    }
+}
+
 export const profile = async (req: AuthenticatedRequest, res: Response) => {
    res.json(req.user)
 };
