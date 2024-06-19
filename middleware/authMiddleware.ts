@@ -11,7 +11,6 @@ export const authMiddleware = async (req: AuthenticatedRequest, res: Response, n
         if (token) {
             try {
                 const decode = jwt.verify(token, env.SECRET_KEY) as JwtPayload & { id: string };
-                console.log('Decoded JWT:', decode); 
     
                 const user = await USER_MODEL.findById(decode.id).select('-password');
                 

@@ -1,10 +1,10 @@
-import express      from 'express'
-import env          from './util/validateEnv'
-import db           from './config/db'
-import rootRouter   from './routes'
-import cookieParser from 'cookie-parser'
+import express           from 'express'
+import env               from './util/validateEnv'
+import db                from './config/db'
+import rootRouter        from './routes'
+import cookieParser      from 'cookie-parser'
 import {errorValidation,
-         pathNotFound } from './middleware/errorMiddleware'
+         pathNotFound }  from './middleware/errorMiddleware'
 
 const app = express()
 const PORT =  env.PORT  || 5001

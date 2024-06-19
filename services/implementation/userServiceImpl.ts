@@ -45,6 +45,10 @@ class userServicesImpl implements userServices {
     }
 
     async updateUserById(id: string, update: Partial<User>): Promise<User| null> {
+        
+        if(update.password){
+            update.password = await hashPassword(update.password)
+        }
         return userRepository.updateById(id, update)
     }
 
