@@ -1,42 +1,21 @@
-import { Product } from '../../model/PRODUCT_MODEL';
-import ProductRepository from '../../repositories/productRepository';
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+import { Product } from "../../model/PRODUCT_MODEL";
+import productRepository from "../../repositories/productRepository";
+import productServicesImpl from "../../services/implementation/productServicesImpl";
 
-jest.mock('../../model/PRODUCT_MODEL', () => ({
-    create: jest.fn(),
-    find: jest.fn().mockReturnThis(),
-    findById: jest.fn().mockReturnThis(),
-    findByIdAndUpdate: jest.fn().mockReturnThis(),
-    findByIdAndDelete: jest.fn().mockReturnThis(),
-    exec: jest.fn(),
-}));
 
-const PRODUCT_MODEL = require('../../model/PRODUCT_MODEL');
+jest.mock("../../repositories/productRepository");
 
-describe('ProductRepository', () => {
-    type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
-    const product: TestProduct = {
-        _id: new mongoose.Types.ObjectId().toHexString(),
-        product_name: 'Updated Product',
-        product_description: 'Updated Description',
-        product_price: 150,
-        product_tag: ['Updated Tag'],
-        user: 'user1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    };
-    let productRepository: typeof ProductRepository;
+describe('Product service Implementation', () => {
 
-    beforeEach(() => {
-        productRepository = ProductRepository;
-    });
+    type TestProduct = Pick<Product, '_id' | 'id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
 
     afterEach(() => {
         jest.clearAllMocks();
     });
 
     describe('createProduct', () => {
-        it('should create a new product', async () => {
+        it('Should create product', async() => {
             const productData: Partial<Product> = {
                 product_name: 'Test Product',
                 product_description: 'Test Description',
@@ -52,19 +31,18 @@ describe('ProductRepository', () => {
                 createdAt: new Date(),
                 updatedAt: new Date()
             } as Product;
-    
-            (PRODUCT_MODEL.create as jest.Mock).mockResolvedValue(createdProduct);
-    
-            const result = await productRepository.createProduct(productData);
-    
-            expect(PRODUCT_MODEL.create).toHaveBeenCalledWith(productData);
+
+            (productRepository.createProduct as jest.Mock).mockResolvedValue(createdProduct);
+
+            const result = await productServicesImpl.createProduct(productData);
+
+            expect(productRepository.createProduct).toHaveBeenCalledWith(productData);
             expect(result).toEqual(createdProduct);
-        });
-    });
+        })
+    })
 
     describe('getAllProduct', () => {
-        it('should get all products', async () => {
-            type TestProduct = Pick<Product, '_id' | 'id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
+        it('Should getAllProduct', async() => {
             const products: TestProduct[] = [
                 {
                     _id: new mongoose.Types.ObjectId().toHexString(),
@@ -89,18 +67,18 @@ describe('ProductRepository', () => {
                     updatedAt: new Date()
                 }
             ];
-    
-            (PRODUCT_MODEL.find().exec as jest.Mock).mockResolvedValue(products);
-            const result = await productRepository.getAllProduct();
-            expect(PRODUCT_MODEL.find).toHaveBeenCalled();
-            expect(result).toEqual(products);
-        });
-    });
 
+            
+            (productRepository.getAllProduct as jest.Mock).mockResolvedValue(products);
+            const result = await productServicesImpl.getAllProduct();
+            expect(productRepository.getAllProduct).toHaveBeenCalled();
+            expect(result).toEqual(products);
+        })
+    })
     describe('getProductById', () => {
         it('should get product by id', async () => {
             type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
-
+    
             const product: TestProduct = {
                 _id: new mongoose.Types.ObjectId().toHexString(),
                 product_name: 'Product 1',
@@ -111,17 +89,17 @@ describe('ProductRepository', () => {
                 createdAt: new Date(),
                 updatedAt: new Date(),
             };
-
-            (PRODUCT_MODEL.findById().exec as jest.Mock).mockResolvedValue(product);
-
-            const result = await productRepository.getProductById(product._id  as unknown as string);
-            expect(PRODUCT_MODEL.findById).toHaveBeenCalledWith(product._id);
+            (productRepository.getProductById as jest.Mock).mockResolvedValue(product);
+    
+            const result = await productServicesImpl.getProductById(product._id as string);
+    
+            expect(productRepository.getProductById).toHaveBeenCalledWith(product._id);
             expect(result).toEqual(product);
         });
     });
 
     describe('updateProduct', () => {
-        it('should update a product', async () => {
+        it('Should updateProduct', async() => {
             type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
 
             const product: TestProduct = {
@@ -142,28 +120,33 @@ describe('ProductRepository', () => {
                 product_tag: ['Updated Tag'],
             };
 
-            (PRODUCT_MODEL.findByIdAndUpdate().exec as jest.Mock).mockResolvedValue(product);
+            (productRepository.updateProduct as jest.Mock).mockResolvedValue(product);
            
-            const result = await productRepository.updateProduct(product._id  as unknown as string, updateData);
-            expect(PRODUCT_MODEL.findByIdAndUpdate).toHaveBeenCalledWith(product._id, updateData, { new: true });
+            const result = await productServicesImpl.updateProduct(product._id  as unknown as string, updateData);
+            expect(productRepository.updateProduct).toHaveBeenCalledWith(product._id, updateData);
             expect(result).toEqual(product);
-        });
-    });
+        })
+    })
 
     describe('deleteProduct', () => {
-        it('should deleteProduct', async () => {
-            
+        it('Should deleteProduct', async() => {
+            type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
 
-          
+            const product: TestProduct = {
+                _id: new mongoose.Types.ObjectId().toHexString(),
+                product_name: 'Updated Product',
+                product_description: 'Updated Description',
+                product_price: 150,
+                product_tag: ['Updated Tag'],
+                user: 'user1',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
 
-
-            (PRODUCT_MODEL.findByIdAndDelete().exec as jest.Mock).mockResolvedValue(product);
-           
-            const result = await productRepository.deleteProduct(product._id  as unknown as string);
-            expect(PRODUCT_MODEL.findByIdAndDelete).toHaveBeenCalledWith(product._id);
+            (productRepository.deleteProduct as jest.Mock).mockResolvedValue(product)
+            const result = await productServicesImpl.deleteProduct(product._id as unknown as string)
+            expect(productRepository.deleteProduct).toHaveBeenCalledWith(product._id)
             expect(result).toEqual(product);
-        });
-    });
-
-
+        })
+    })
 })

@@ -59,12 +59,11 @@ export const deleteProduct = async(req:AuthenticatedRequest, res:Response, next:
             throw new Error('Invalid Id')
         }
         const product = await productServicesImpl.deleteProduct(id)
-        if(product){
-            res.status(200).json({message:'Product Deleted!'})
-        }else{
-            res.status(404)
-            throw new Error('Id not found')
+        if (!product) {
+            res.status(404);
+            throw new Error('Product not found');
         }
+        res.status(200).json({ message: 'Product Deleted!' });
        
     } catch (error) {
         next(error)
