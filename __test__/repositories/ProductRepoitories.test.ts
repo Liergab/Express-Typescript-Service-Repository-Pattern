@@ -5,15 +5,26 @@ import mongoose from 'mongoose';
 jest.mock('../../model/PRODUCT_MODEL', () => ({
     create: jest.fn(),
     find: jest.fn().mockReturnThis(),
-    findById: jest.fn(),
-    findByIdAndUpdate: jest.fn(),
-    findByIdAndDelete: jest.fn(),
+    findById: jest.fn().mockReturnThis(),
+    findByIdAndUpdate: jest.fn().mockReturnThis(),
+    findByIdAndDelete: jest.fn().mockReturnThis(),
     exec: jest.fn(),
 }));
 
 const PRODUCT_MODEL = require('../../model/PRODUCT_MODEL');
 
 describe('ProductRepository', () => {
+    type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
+    const product: TestProduct = {
+        _id: new mongoose.Types.ObjectId().toHexString(),
+        product_name: 'Updated Product',
+        product_description: 'Updated Description',
+        product_price: 150,
+        product_tag: ['Updated Tag'],
+        user: 'user1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+    };
     let productRepository: typeof ProductRepository;
 
     beforeEach(() => {
@@ -27,7 +38,7 @@ describe('ProductRepository', () => {
     describe('createProduct', () => {
         it('should create a new product', async () => {
             const productData: Partial<Product> = {
-                product_name: 'Test Product', // Provide a default value for product_name
+                product_name: 'Test Product',
                 product_description: 'Test Description',
                 product_price: 100,
                 product_tag: ['Test Tag'],
@@ -81,17 +92,80 @@ describe('ProductRepository', () => {
                 }
             ];
     
-            // Mock the return value of PRODUCT_MODEL.find
             (PRODUCT_MODEL.find().exec as jest.Mock).mockResolvedValue(products);
-    
-            // Call the getAllProduct method
             const result = await productRepository.getAllProduct();
-    
-            // Assert that PRODUCT_MODEL.find was called
             expect(PRODUCT_MODEL.find).toHaveBeenCalled();
-    
-            // Assert that the result matches the mocked products
             expect(result).toEqual(products);
         });
     });
+
+    describe('getProductById', () => {
+        it('should get product by id', async () => {
+            type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
+
+            const product: TestProduct = {
+                _id: new mongoose.Types.ObjectId().toHexString(),
+                product_name: 'Product 1',
+                product_description: 'Description 1',
+                product_price: 100,
+                product_tag: ['Tag 1'],
+                user: 'user1',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            (PRODUCT_MODEL.findById().exec as jest.Mock).mockResolvedValue(product);
+
+            const result = await productRepository.getProductById(product._id  as unknown as string);
+            expect(PRODUCT_MODEL.findById).toHaveBeenCalledWith(product._id);
+            expect(result).toEqual(product);
+        });
+    });
+
+    describe('updateProduct', () => {
+        it('should update a product', async () => {
+            type TestProduct = Pick<Product, '_id' | 'product_name' | 'product_description' | 'product_price' | 'product_tag' | 'user' | 'createdAt' | 'updatedAt'>;
+
+            const product: TestProduct = {
+                _id: new mongoose.Types.ObjectId().toHexString(),
+                product_name: 'Updated Product',
+                product_description: 'Updated Description',
+                product_price: 150,
+                product_tag: ['Updated Tag'],
+                user: 'user1',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            const updateData: Partial<Product> = {
+                product_name: 'Updated Product',
+                product_description: 'Updated Description',
+                product_price: 150,
+                product_tag: ['Updated Tag'],
+            };
+
+            (PRODUCT_MODEL.findByIdAndUpdate().exec as jest.Mock).mockResolvedValue(product);
+           
+            const result = await productRepository.updateProduct(product._id  as unknown as string, updateData);
+            expect(PRODUCT_MODEL.findByIdAndUpdate).toHaveBeenCalledWith(product._id, updateData, { new: true });
+            expect(result).toEqual(product);
+        });
+    });
+
+    describe('deleteProduct', () => {
+        it('should deleteProduct', async () => {
+            
+
+          
+
+
+            (PRODUCT_MODEL.findByIdAndDelete().exec as jest.Mock).mockResolvedValue(product);
+           
+            const result = await productRepository.deleteProduct(product._id  as unknown as string);
+            expect(PRODUCT_MODEL.findByIdAndDelete).toHaveBeenCalledWith(product._id);
+            expect(result).toEqual(product);
+        });
+    });
+
+
 })
